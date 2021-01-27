@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .swiper {
+      position: relative;
+      width: 500px;
+      height: 300px;
+      margin: 100px auto;
+      overflow: hidden;
+    }
+    .swiper-wrp {
+      position: absolute;
+      display: flex;
+    }
+    .banner-item {
+      width: 500px;
+      height: 300px;
+    }
+    .box1 {
+      background-color: chocolate;
+    }
+    .box2 {
+      background-color: bisque;
+    }
+    .box3 {
+      background-color: cadetblue;
+    }
+    .box4 {
+      background-color: chartreuse;
+    }
+    .dots {
+      position: absolute;
+      bottom: 10px;
+      left: 20px;
+      cursor: pointer;
+    }
+    .dots-item {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 5px;
+      background-color: white;
+    }
+    .dots-item:hover {
+      background-color: cornflowerblue;
+    }
+    .active-dots {
+      background-color:cornflowerblue;
+    }
+    .btn {
+      position: absolute;
+      display: flex;
+      justify-content: space-between;
+      top: 50%;
+      left: 0;
+      right: 0;
+      transform: translateY(-50%);
+    }
+    .direct {
+      width: 50px;
+      height: 100px;
+      line-height: 100px;
+      text-align: center;
+      opacity: .5;
+    }
+    .direct:hover {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="swiper">
+    <div class="swiper-wrp">
+      <div class="banner-item box1"></div>
+      <div class="banner-item box2"></div>
+      <div class="banner-item box3"></div>
+      <div class="banner-item box4"></div>
+    </div>
+    <div class="dots">
+      <span class="dots-item active-dots"></span>
+      <span class="dots-item"></span>
+      <span class="dots-item"></span>
+      <span class="dots-item"></span>
+    </div>
+    <div class="btn">
+      <button class="left direct" data-direc='left'><</button>
+      <button class="right direct" data-direc='rigth'>></button>
+    </div>
+  </div>
+  <script>
+    const MOVE_DISTANCE = 500;
+    const MAX_LEFT = MOVE_DISTANCE * 3;
+    const swiper = document.getElementsByClassName('swiper-wrp')[0];
+    const left = document.getElementsByClassName('left')[0];
+    const right = document.getElementsByClassName('right')[0];
+    const dots = document.getElementsByClassName('dots-item');
+    let index = 0;
+    let interValId = null;
+
+    //事件监听
+    left.addEventListener('click',directClickHandler);
+    right.addEventListener('click',directClickHandler);
+    [...dots].forEach((item,index) => {
+      item.addEventListener('click',() => dotsClickHandler(index))
+    });
+
+    // 事件处理函数
+    function directClickHandler(e) {
+      const isLeft = e.target.dataset.direc === 'left';
+      moveSwiper(isLeft);
+    };
+    function dotsClickHandler(currentIndex) {
+      updateIndex(currentIndex);
+      moveSwiper(null,currentIndex * MOVE_DISTANCE);
+    };
+
+    // 移动swiper
+    function moveSwiper(isLeft,target) {
+      if(isLeft === null) {
+        return swiper.style.left = -target + 'px';
+      };
+      const currentLeft = swiper.offsetLeft;
+      if(!sideBarHandler(currentLeft,isLeft)) {
+        return;
+      };
+      swiper.style.left = isLeft ? currentLeft + MOVE_DISTANCE + 'px' : currentLeft - MOVE_DISTANCE + 'px';
+      updateIndex(isLeft ? (index -1) : (index + 1));
+    }
+
+    // 边界值处理
+    function sideBarHandler(currentLeft,isLeft) {
+      if(!isLeft && (-currentLeft >= MAX_LEFT)) {
+        swiper.style.left = 0;
+        updateIndex(0);
+        return false;
+      }else if(isLeft && currentLeft >= 0) {
+        swiper.style.left = -MAX_LEFT + 'px';
+        updateIndex(dots.length -1);
+        return false;
+      }
+      return true;
+    };
+
+    // 更新index和dot
+    function updateIndex(curentIndex) {
+      index = curentIndex;
+      [...dots].forEach(item => {
+        item.className = 'dots-item';
+      });
+      dots[index].className = 'dots-item active-dots';
+    };
+
+    // autoplay
+    function autoplay() {
+      interValId = setInterval(() => {
+        moveSwiper(false);
+      },2000);
+    };
+    // stopAuto
+    function stopAutoplay() {
+      clearInterval(interValId);
+    };
+    // autoplay()
+  </script>
+</body>
+</html>
